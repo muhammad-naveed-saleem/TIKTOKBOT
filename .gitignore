@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────
+#  .gitignore  ─  YouTube → TikTok Bot
+# ─────────────────────────────────────────────────────────────────
+
+# Environment & secrets
+.env
+*.env
+
+# Downloaded & processed media (can be large)
+downloads/
+processed/
+
+# State / runtime files
+processed_videos.json
+logs/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,22 @@
+# ─────────────────────────────────────────────────────────────────
+#  YouTube → TikTok Bot  ─  Python Dependencies
+#  Install with:  pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────
+
+# Environment variable loading
+python-dotenv>=1.0.0
+
+# YouTube RSS feed parsing
+feedparser>=6.0.11
+
+# YouTube video downloading (keep updated for YouTube format changes)
+yt-dlp>=2024.1.1
+
+# TikTok API HTTP client
+requests>=2.31.0
+
+# Scheduled job runner
+APScheduler>=3.10.4
+
+# Optional: type hints & structured logging helpers
+typing-extensions>=4.9.0
