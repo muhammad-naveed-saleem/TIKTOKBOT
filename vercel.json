@@ -1,4 +1,5 @@
 {
+  "buildCommand": "echo 'Building static documentation'",
   "outputDirectory": "docs",
   "cleanUrls": true
 }
