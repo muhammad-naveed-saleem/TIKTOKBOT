@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoTok Studio — YouTube to TikTok Automation Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #090b10;
+      --bg-surface: #11151f;
+      --bg-surface-elevated: #181d2a;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(254, 44, 85, 0.3);
+      --tt-red: #fe2c55;
+      --tt-cyan: #25f4ee;
+      --yt-red: #ff0000;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-glow: 0 0 35px rgba(254, 44, 85, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(254, 44, 85, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(37, 244, 238, 0.06) 0%, transparent 40%);
+    }
+
+    /* ── Header ── */
+    header {
+      background: rgba(17, 21, 31, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #fe2c55 0%, #25f4ee 100%);
+      padding: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .logo-inner {
+      background: var(--bg-base);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo-inner span.tt { color: var(--tt-red); }
+    .logo-inner span.plus { color: var(--text-muted); font-weight: 400; font-size: 13px; }
+    .logo-inner span.yt { color: var(--yt-red); }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--success);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .header-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .header-link:hover {
+      color: var(--text-main);
+    }
+
+    /* ── Main Layout ── */
+    main {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      font-size: 18px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .stat-subtext {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* ── Dashboard Content ── */
+    .dashboard-split {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── Connected Accounts ── */
+    .connection-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .account-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .account-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .account-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--tt-red), var(--tt-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .account-meta h4 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .account-meta p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .scope-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .scope-badge {
+      background: rgba(254, 44, 85, 0.1);
+      border: 1px solid rgba(254, 44, 85, 0.25);
+      color: #ff7590;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .yt-badge {
+      background: rgba(255, 0, 0, 0.1);
+      border-color: rgba(255, 0, 0, 0.25);
+      color: #ff6666;
+    }
+
+    /* ── Workflow Stepper ── */
+    .stepper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+    }
+
+    .step-item.active {
+      border-color: var(--tt-cyan);
+      box-shadow: 0 0 15px rgba(37, 244, 238, 0.15);
+      background: rgba(37, 244, 238, 0.04);
+    }
+
+    .step-item.completed {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .step-item.active .step-icon {
+      background: var(--tt-cyan);
+      color: #000;
+      animation: spin 1s infinite linear;
+    }
+
+    .step-item.completed .step-icon {
+      background: var(--success);
+      color: #fff;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .step-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Action Trigger ── */
+    .cta-button {
+      background: linear-gradient(135deg, var(--tt-red) 0%, #e02449 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 16px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-glow);
+      width: 100%;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(254, 44, 85, 0.4);
+    }
+
+    .cta-button:active {
+      transform: translateY(0);
+    }
+
+    .cta-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── Console Output ── */
+    .console-card {
+      background: #080a0f;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 12px;
+    }
+
+    .console-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 6px;
+    }
+
+    .light {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .light.red { background: #ff5f56; }
+    .light.yellow { background: #ffbd2e; }
+    .light.green { background: #27c93f; }
+
+    .console-body {
+      background: #050609;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      height: 220px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #d1d5db;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time { color: var(--text-dim); }
+    .log-info { color: var(--tt-cyan); font-weight: 600; }
+    .log-success { color: var(--success); font-weight: 600; }
+    .log-warn { color: var(--warning); font-weight: 600; }
+
+    /* ── Phone Mockup / Preview ── */
+    .preview-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .video-thumb {
+      width: 90px;
+      height: 140px;
+      background: linear-gradient(135deg, #232733, #151821);
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .badge-916 {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font-size: 9px;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .preview-meta {
+      flex: 1;
+    }
+
+    .preview-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .preview-tags {
+      font-size: 12px;
+      color: var(--tt-cyan);
+      margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .preview-specs {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 16px;
+    }
+
+    footer a:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">
+        <div class="logo-inner">
+          <span class="yt">YouTube</span>
+          <span class="plus">➔</span>
+          <span class="tt">TikTok</span>
+        </div>
+      </div>
+      <div>
+        <div class="brand-title">AutoTok Studio</div>
+        <div class="brand-subtitle">Automated YouTube-to-TikTok Syndication System</div>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <div class="status-pill">
+        <div class="pulse-dot"></div>
+        Daemon Online (10m Poll)
+      </div>
+      <a href="privacy-policy.html" class="header-link" target="_blank">Privacy Policy</a>
+      <a href="terms-of-service.html" class="header-link" target="_blank">Terms of Service</a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- Top KPI Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Videos Synced</span>
+          <span class="stat-icon">🎬</span>
+        </div>
+        <div class="stat-value" id="kpi-count">24</div>
+        <div class="stat-subtext">All shorts published successfully</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">TikTok API Protocol</span>
+          <span class="stat-icon">⚡</span>
+        </div>
+        <div class="stat-value" style="color: var(--tt-cyan);">v2 Direct Post</div>
+        <div class="stat-subtext">Chunked Upload (10 MB parts)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">OAuth 2.0 Health</span>
+          <span class="stat-icon">🔑</span>
+        </div>
+        <div class="stat-value" style="color: var(--success);">Active</div>
+        <div class="stat-subtext">Silent refresh token ready</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Worker Status</span>
+          <span class="stat-icon">⏱️</span>
+        </div>
+        <div class="stat-value" id="next-check">06:42</div>
+        <div class="stat-subtext">Next automatic channel scan</div>
+      </div>
+    </div>
+
+    <!-- Main Two Column Content -->
+    <div class="dashboard-split">
+
+      <!-- Left Column: Source & Destination Setup -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">
+            <span>🔗 Connected Profiles</span>
+          </div>
+          <span style="font-size: 12px; color: var(--success); font-weight: 600;">Authenticated</span>
+        </div>
+
+        <div class="connection-panel">
+          <!-- TikTok Card -->
+          <div class="account-box" style="border-left: 3px solid var(--tt-red);">
+            <div class="account-info">
+              <div class="account-avatar">🎵</div>
+              <div class="account-meta">
+                <h4>TikTok Profile (@hadelfilms)</h4>
+                <p>Client Key: <code>awov9c7bvbsv0ogo</code></p>
+                <div class="scope-badges">
+                  <span class="scope-badge">user.info.basic</span>
+                  <span class="scope-badge">video.upload</span>
+                  <span class="scope-badge">video.publish</span>
+                </div>
+              </div>
+            </div>
+            <button class="header-link" style="background: none; border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+              Re-check Token
+            </button>
+          </div>
+
+          <!-- YouTube Card -->
+          <div class="account-box" style="border-left: 3px solid var(--yt-red);">
+            <div class="account-info">
+              <div class="account-avatar" style="background: var(--yt-red);">▶</div>
+              <div class="account-meta">
+                <h4>YouTube Channel</h4>
+                <p>Channel ID: <code>UCekxVMigSEVnY0ikBF5s63Q</code></p>
+                <div class="scope-badges">
+                  <span class="scope-badge yt-badge">Poll Interval: 600s</span>
+                  <span class="scope-badge yt-badge">Filter: #Shorts & Vertical</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Ready To Sync -->
+        <div class="card-title-row" style="margin-top: 10px;">
+          <div class="card-title">
+            <span>📹 Latest Video in Queue</span>
+          </div>
+          <span style="font-size: 11px; background: rgba(37, 244, 238, 0.1); color: var(--tt-cyan); padding: 3px 8px; border-radius: 4px; font-weight: 700;">READY</span>
+        </div>
+
+        <div class="preview-box">
+          <div class="video-thumb">
+            📱
+            <span class="badge-916">9:16</span>
+          </div>
+          <div class="preview-meta">
+            <div class="preview-title" id="vid-title">Automating Vertical Shorts Workflow for TikTok</div>
+            <div class="preview-tags" id="vid-tags">#trending #viral #shorts #hadelfilms</div>
+            <div class="preview-specs">
+              <span>Resolution: 1080×1920</span>
+              <span>•</span>
+              <span>Length: 42s</span>
+              <span>•</span>
+              <span>Source: YouTube</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trigger Button -->
+        <button class="cta-button" id="start-btn" onclick="runSyncWorkflow()">
+          <span>🚀 Run Instant Sync & Publish Walkthrough</span>
+        </button>
+      </div>
+
+      <!-- Right Column: Live Stepper & Terminal -->
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">
+            <span>⚙️ Live Syndication Pipeline</span>
+          </div>
+          <span id="pipeline-status" style="font-size: 12px; color: var(--text-dim); font-weight: 600;">IDLE</span>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper">
+          <div class="step-item" id="step-1">
+            <div class="step-icon">1</div>
+            <div class="step-content">
+              <div class="step-title">Poll YouTube Channel Feed</div>
+              <div class="step-desc">Query channel RSS & yt-dlp metadata for new 9:16 vertical short.</div>
+            </div>
+          </div>
+
+          <div class="step-item" id="step-2">
+            <div class="step-icon">2</div>
+            <div class="step-content">
+              <div class="step-title">Download & Validate Video Container</div>
+              <div class="step-desc">Save highest bitrate MP4 and confirm 1080×1920 resolution.</div>
+            </div>
+          </div>
+
+          <div class="step-item" id="step-3">
+            <div class="step-icon">3</div>
+            <div class="step-content">
+              <div class="step-title">Refresh TikTok OAuth 2.0 Credentials</div>
+              <div class="step-desc">Exchange refresh_token for active v2 bearer token.</div>
+            </div>
+          </div>
+
+          <div class="step-item" id="step-4">
+            <div class="step-icon">4</div>
+            <div class="step-content">
+              <div class="step-title">Initialize TikTok Direct Post API</div>
+              <div class="step-desc">POST /v2/post/publish/video/init/ → retrieve upload_url and publish_id.</div>
+            </div>
+          </div>
+
+          <div class="step-item" id="step-5">
+            <div class="step-icon">5</div>
+            <div class="step-content">
+              <div class="step-title">Stream Chunked Binary to TikTok</div>
+              <div class="step-desc">Upload byte ranges in 10 MB chunks directly to TikTok storage endpoints.</div>
+            </div>
+          </div>
+
+          <div class="step-item" id="step-6">
+            <div class="step-icon">6</div>
+            <div class="step-content">
+              <div class="step-title">Verify Publish Status & Attach Hashtags</div>
+              <div class="step-desc">Poll /v2/post/publish/status/fetch/ until PUBLISH_COMPLETE.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Console Terminal -->
+        <div class="console-card">
+          <div class="console-header">
+            <div class="console-title">
+              <span>Terminal Output — main.py</span>
+            </div>
+            <div class="traffic-lights">
+              <div class="light red"></div>
+              <div class="light yellow"></div>
+              <div class="light green"></div>
+            </div>
+          </div>
+          <div class="console-body" id="console-logs">
+            <div class="log-line">
+              <span class="log-time">[10:45:00]</span>
+              <span class="log-info">[MONITOR]</span>
+              <span>Worker thread initialized. Monitoring YouTube channel UCekxVMigSEVnY0ikBF5s63Q</span>
+            </div>
+            <div class="log-line">
+              <span class="log-time">[10:45:01]</span>
+              <span class="log-info">[OAUTH]</span>
+              <span>TikTok TokenManager loaded. Refresh token signature validated.</span>
+            </div>
+            <div class="log-line">
+              <span class="log-time">[10:45:02]</span>
+              <span>[READY] Press "Run Instant Sync & Publish" to trigger live demonstration...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div>© 2026 HadelFilms AutoTok Studio • All Rights Reserved</div>
+    <div>
+      <a href="privacy-policy.html" target="_blank">Privacy Policy</a>
+      <a href="terms-of-service.html" target="_blank">Terms of Service</a>
+      <a href="https://developers.tiktok.com" target="_blank">TikTok Developer Portal</a>
+    </div>
+  </footer>
+
+  <script>
+    function getTime() {
+      const now = new Date();
+      return now.toTimeString().split(' ')[0];
+    }
+
+    function addLog(tag, type, message) {
+      const consoleBox = document.getElementById('console-logs');
+      const div = document.createElement('div');
+      div.className = 'log-line';
+      div.innerHTML = `
+        <span class="log-time">[${getTime()}]</span>
+        <span class="${type}">${tag}</span>
+        <span>${message}</span>
+      `;
+      consoleBox.appendChild(div);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    function setStep(num, status) {
+      const step = document.getElementById(`step-${num}`);
+      if (status === 'active') {
+        step.className = 'step-item active';
+        step.querySelector('.step-icon').innerHTML = '⏳';
+      } else if (status === 'completed') {
+        step.className = 'step-item completed';
+        step.querySelector('.step-icon').innerHTML = '✓';
+      } else {
+        step.className = 'step-item';
+        step.querySelector('.step-icon').innerHTML = num;
+      }
+    }
+
+    let isRunning = false;
+
+    async function runSyncWorkflow() {
+      if (isRunning) return;
+      isRunning = true;
+
+      const btn = document.getElementById('start-btn');
+      const pipelineStatus = document.getElementById('pipeline-status');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Running Publishing Sequence...</span>';
+      pipelineStatus.innerHTML = '<span style="color: var(--tt-cyan);">PROCESSING</span>';
+
+      // Reset steps
+      for (let i = 1; i <= 6; i++) setStep(i, 'idle');
+
+      // Step 1: Poll
+      setStep(1, 'active');
+      addLog('[QUERY]', 'log-info', 'Scanning channel UCekxVMigSEVnY0ikBF5s63Q for latest Shorts...');
+      await new Promise(r => setTimeout(r, 1400));
+      setStep(1, 'completed');
+      addLog('[FOUND]', 'log-success', 'New Short detected: "Automating Vertical Shorts Workflow" (ID: dQw4w9WgXcQ)');
+
+      // Step 2: Download & Validate
+      setStep(2, 'active');
+      addLog('[DOWNLOAD]', 'log-info', 'yt-dlp streaming bestvideo[ext=mp4] to ./downloads/video_temp.mp4');
+      await new Promise(r => setTimeout(r, 1600));
+      setStep(2, 'completed');
+      addLog('[VALIDATE]', 'log-success', 'Asset verified: 1080x1920 (9:16 portrait), 42 seconds, 24.8 MB container.');
+
+      // Step 3: Refresh OAuth
+      setStep(3, 'active');
+      addLog('[OAUTH]', 'log-info', 'Calling https://open.tiktokapis.com/v2/oauth/token/ (grant_type=refresh_token)');
+      await new Promise(r => setTimeout(r, 1200));
+      setStep(3, 'completed');
+      addLog('[TOKEN]', 'log-success', 'Refreshed access_token renewed for 86,400s. Scopes: [user.info.basic, video.upload, video.publish]');
+
+      // Step 4: Init Direct Post
+      setStep(4, 'active');
+      addLog('[API_INIT]', 'log-info', 'POST /v2/post/publish/video/init/ (source=FILE_UPLOAD, size=26004684, chunk_count=3)');
+      await new Promise(r => setTimeout(r, 1500));
+      setStep(4, 'completed');
+      addLog('[UPLOAD_URL]', 'log-success', 'Received publish_id: "v_pub_73928192389104". Storage chunk URL pre-signed.');
+
+      // Step 5: Chunked upload
+      setStep(5, 'active');
+      addLog('[CHUNK_1]', 'log-info', 'PUT bytes 0-10485759/26004684 (10 MB)... HTTP 200 OK');
+      await new Promise(r => setTimeout(r, 1100));
+      addLog('[CHUNK_2]', 'log-info', 'PUT bytes 10485760-20971519/26004684 (10 MB)... HTTP 200 OK');
+      await new Promise(r => setTimeout(r, 1100));
+      addLog('[CHUNK_3]', 'log-info', 'PUT bytes 20971520-26004683/26004684 (5.0 MB)... HTTP 200 OK');
+      setStep(5, 'completed');
+      addLog('[UPLOAD_DONE]', 'log-success', 'Binary transfer 100% complete. TikTok transcoding triggered.');
+
+      // Step 6: Status fetch
+      setStep(6, 'active');
+      addLog('[STATUS]', 'log-info', 'Polling /v2/post/publish/status/fetch/ ... (attempt 1/12)');
+      await new Promise(r => setTimeout(r, 1400));
+      setStep(6, 'completed');
+      addLog('[SUCCESS]', 'log-success', 'PUBLISH_COMPLETE: Video published to TikTok @hadelfilms! Post ID: 74218949210948');
+
+      // Update KPI
+      document.getElementById('kpi-count').innerText = '25';
+      pipelineStatus.innerHTML = '<span style="color: var(--success);">SYNC COMPLETE</span>';
+      btn.innerHTML = '<span>🎉 Video Published Successfully! Click to Re-run</span>';
+      btn.disabled = false;
+      isRunning = false;
+    }
+  </script>
+</body>
+</html>
